@@ -1,0 +1,22 @@
+[
+    {
+        "id": 0,
+        "name": "Pasta Carbonara",
+        "imageUrl": "https://www.marthastewart.com/thmb/S9xVtnWSHldvxPHKOxEq0bALG-k=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/MSL-338686-spaghetti-carbonara-hero-3x2-69999-560b45d1dd9f4741b717176eff024839.jpeg"
+    },
+    {
+        "id": 1,
+        "name": "Krofne",
+        "imageUrl": "https://www.thespruceeats.com/thmb/_yj1Ke8cN_J6QO54N8By07twvOQ=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/serbian-doughnuts-krofne-recipe-1135868-hero-01-eadc235e44104998a27675310c9470c2.jpg"
+    },
+    {
+        "id": 2,
+        "name": "Pizza",
+        "imageUrl": "https://www.allrecipes.com/thmb/aefJMDXKqs42oAP71dQuYf_-Qdc=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/6776_Pizza-Dough_ddmfs_4x3_1724-fd91f26e0bd6400a9e89c6866336532b.jpg"
+    },
+    {
+        "id": 3,
+        "name": "Lazanje",
+        "imageUrl": "https://www.allrecipes.com/thmb/k-7ylxn1DrCHEPif3lJrRBOhqkA=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/AR-19344-Homemade-Lasagna-beauty-2x1-98da45c3a5854a2b8901a92123ccb6f1.jpg"
+    }
+]
