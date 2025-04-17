@@ -23,7 +23,8 @@ function logout() {
     
     <RouterLink to="/login" v-if="!isLoggedIn">Log In</RouterLink>
     <RouterLink to="/signup" v-if="!isLoggedIn">Sign Up</RouterLink>
-    <RouterLink to="/random" v-if="isLoggedIn">Random Recipe</RouterLink>
+    <a v-if="isLoggedIn">Add Recipe</a>
+    <a v-if="isLoggedIn">Remove Recipe</a>
     <a @click="logout" v-if="isLoggedIn">Log Out</a>
   </div>
 
