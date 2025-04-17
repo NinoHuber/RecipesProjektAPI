@@ -126,11 +126,7 @@ async function getAll(options = {}) {
 
   const recipes = await fetchRecipes();
 
-  return recipes.sort(universalSort(sortBy, sortType)).map((a) => ({
-    id: a.id,
-    name: a.name,
-    imageUrl: a.imageUrl,
-  }));
+  return recipes.sort(universalSort(sortBy, sortType))
 }
 
 module.exports = {

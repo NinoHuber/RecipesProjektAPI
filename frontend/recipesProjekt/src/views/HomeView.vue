@@ -4,49 +4,106 @@ import axios from 'axios'
 
 let isLoggedIn = ref(false)
 
+let recipes = ref([])
+
+let toggleRemove = ref(false)
+let toggleAdd = ref(false)
+
+let id = ref()
+
+let recipeName = ref()
+let recipeDesc = ref()
+let recipeIngr = ref()
+let recipeInst = ref()
+let recipeUrl = ref()
+
+async function readRecipes() {
+  const response = await axios.get('http://localhost:3000/api/v1/recipes', {headers: {Authorization: 'Bearer ' + localStorage.getItem("token")}})
+  recipes.value = response.data.data.recipes
+}
+
+function getImageUrl(filename) {
+  if (filename.startsWith('http')) {
+    return filename
+  }
+  return new URL(`./slike/${filename}`, import.meta.url).href
+}
 
 onMounted(async() => {
   let token = localStorage.getItem("token")
   if(token != undefined || token != null) {
     isLoggedIn.value = true
   }
+  readRecipes()
 })
 
 function logout() {
   localStorage.removeItem("token")
   isLoggedIn.value = false
 }
+
+async function removeRecipe() {
+  const response = await axios.delete('http://localhost:3000/api/v1/recipes/' + id.value, {headers: {Authorization: 'Bearer ' + localStorage.getItem("token")}})
+  readRecipes()
+  toggleRemove.value = !toggleRemove.value
+  id.value = ""
+}
+
+async function addRecipe() {
+  let newRecipe = {
+    "name": recipeName.value,
+    "description": recipeDesc.value,
+    "ingredients": recipeIngr.value.split(","),
+    "instructions": recipeInst.value.split(","),
+    "imageUrl": recipeUrl.value
+  }
+  const response = await axios.post('http://localhost:3000/api/v1/recipes', newRecipe, {headers: {Authorization: 'Bearer ' + localStorage.getItem("token")}})
+  readRecipes()
+  recipeName.value = ""
+  recipeDesc.value = ""
+  recipeIngr.value = ""
+  recipeInst.value = ""
+  recipeUrl.value = ""
+  toggleAdd.value = !toggleAdd
+}
 </script>
 
 <template>
   <div class="header1">
-    
     <RouterLink to="/login" v-if="!isLoggedIn">Log In</RouterLink>
     <RouterLink to="/signup" v-if="!isLoggedIn">Sign Up</RouterLink>
-    <a v-if="isLoggedIn">Add Recipe</a>
-    <a v-if="isLoggedIn">Remove Recipe</a>
+    <a v-if="isLoggedIn" @click="toggleAdd = !toggleAdd">Add Recipe</a>
+    <a v-if="isLoggedIn" @click="toggleRemove = !toggleRemove">Remove Recipe</a>
     <a @click="logout" v-if="isLoggedIn">Log Out</a>
+  </div>
+
+  <div class="remove" v-if="toggleRemove">
+    <label>ID:</label>
+    <input type="text" v-model="id">
+    <button @click="removeRecipe()">Remove</button>
+  </div>
+
+  <div class="add" v-if="toggleAdd">
+    <label>name:</label>
+    <input type="text" v-model="recipeName">
+    <label>descirption:</label>
+    <input type="text" v-model="recipeDesc">
+    <label>ingredients:</label>
+    <input type="text" v-model="recipeIngr" placeholder="svaki odvojen zarezom">
+    <label>instructions:</label>
+    <input type="text" v-model="recipeInst" placeholder="svaki odvojen zarezom">
+    <label>Image URL:</label>
+    <input type="text" v-model="recipeUrl">
+    <button @click="addRecipe()">Add</button>
   </div>
 
   <div class="header">Recipe Site</div>
 
   <div class="recipes">
-    <RouterLink to="/lazanje" class="recipe">
-      <img src="./slike/Lasagna-Bolognese-scaled.jpg" alt="Lazanje" />
-      <h3>Lazanje</h3>
-    </RouterLink>
-    <RouterLink to="/pizza" class="recipe">
-      <img src="./slike/the-best-homemade-margherita-pizza-1-4.jpg" alt="Pizza" />
-      <h3>Pizza</h3>
-    </RouterLink>
-    <RouterLink to="/pasta" class="recipe">
-      <img src="./slike/1200-Spaghetti-Carbonara-2-SpendWithPennies.jpg" alt="Pasta Carbonara" />
-      <h3>Pasta Carbonara</h3>
-    </RouterLink>
-    <RouterLink to="/krofne" class="recipe">
-      <img src="./slike/2.jpg" alt="Krofne" />
-      <h3>Krofne</h3>
-    </RouterLink>
+    <div class="recipe" v-for="recipe in recipes">
+      <img :src="getImageUrl(recipe.imageUrl)" alt="">
+      <h3>{{ recipe.name }}</h3>
+    </div>
   </div>
 
   <footer>
@@ -123,6 +180,7 @@ function logout() {
     .recipe:hover {
       transform: translateY(-5px);
       box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
     }
 
     .recipe img {
@@ -170,5 +228,19 @@ function logout() {
       .header1 a {
         margin: 5px 0;
       }
+    }
+
+    .remove {
+      position: absolute;
+      background-color: #F4F3EF;
+      right: 0;
+      padding: 10px;
+    }
+
+    .add {
+      position: absolute;
+      background-color: #F4F3EF;
+      right: 0;
+      padding: 10px;
     }
   </style>
