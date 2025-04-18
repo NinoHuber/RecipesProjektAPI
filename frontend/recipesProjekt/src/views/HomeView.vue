@@ -8,14 +8,15 @@ let recipes = ref([])
 
 let toggleRemove = ref(false)
 let toggleAdd = ref(false)
+let toggleUpdate = ref(false)
 
 let id = ref()
 
-let recipeName = ref()
-let recipeDesc = ref()
-let recipeIngr = ref()
-let recipeInst = ref()
-let recipeUrl = ref()
+let recipeName = ref('')
+let recipeDesc = ref('')
+let recipeIngr = ref([])
+let recipeInst = ref([])
+let recipeUrl = ref('')
 
 async function readRecipes() {
   const response = await axios.get('http://localhost:3000/api/v1/recipes', {headers: {Authorization: 'Bearer ' + localStorage.getItem("token")}})
@@ -66,14 +67,60 @@ async function addRecipe() {
   recipeUrl.value = ""
   toggleAdd.value = !toggleAdd
 }
+
+async function updateRecipe() {
+  let updatedRecipe = {}
+
+  if (recipeName.value.trim()) updatedRecipe.name = recipeName.value
+  if (recipeDesc.value.trim()) updatedRecipe.description = recipeDesc.value
+  if (recipeIngr.value.length > 0) updatedRecipe.ingredients = recipeIngr.value.split(',').map(i => i.trim())
+  if (recipeInst.value.length > 0) updatedRecipe.instructions = recipeInst.value.split(',').map(i => i.trim())
+  if (recipeUrl.value.trim()) updatedRecipe.imageUrl = recipeUrl.value
+
+  const response = await axios.patch('http://localhost:3000/api/v1/recipes/' + id.value, updatedRecipe, {headers: {Authorization: 'Bearer '+ localStorage.getItem("token")}})
+
+  readRecipes()
+
+  id.value = ""
+  recipeName.value = ""
+  recipeDesc.value = ""
+  recipeIngr.value = ""
+  recipeInst.value = ""
+  recipeUrl.value = ""
+  toggleUpdate.value = !toggleUpdate
+}
+
+const selectedRecipe = ref(null)
+
+function showRecipe(recipe) {
+  selectedRecipe.value = recipe
+}
+
+function closeRecipe() {
+  selectedRecipe.value = null
+}
+
+function keep(toggle) {
+  if(toggle == 'add') {
+    toggleRemove.value = false
+    toggleUpdate.value = false
+  }else if(toggle == 'remove') {
+    toggleAdd.value = false
+    toggleUpdate.value = false
+  }else if(toggle == 'update') {
+    toggleAdd.value = false
+    toggleRemove.value = false
+  }
+}
 </script>
 
 <template>
   <div class="header1">
     <RouterLink to="/login" v-if="!isLoggedIn">Log In</RouterLink>
     <RouterLink to="/signup" v-if="!isLoggedIn">Sign Up</RouterLink>
-    <a v-if="isLoggedIn" @click="toggleAdd = !toggleAdd">Add Recipe</a>
-    <a v-if="isLoggedIn" @click="toggleRemove = !toggleRemove">Remove Recipe</a>
+    <a v-if="isLoggedIn" @click="toggleAdd = !toggleAdd; keep('add')">Add Recipe</a>
+    <a v-if="isLoggedIn" @click="toggleRemove = !toggleRemove; keep('remove')">Remove Recipe</a>
+    <a v-if="isLoggedIn" @click="toggleUpdate = !toggleUpdate; keep('update')">Update Recipe</a>
     <a @click="logout" v-if="isLoggedIn">Log Out</a>
   </div>
 
@@ -97,10 +144,45 @@ async function addRecipe() {
     <button @click="addRecipe()">Add</button>
   </div>
 
+  <div class="update" v-if="toggleUpdate">
+    <label>ID:</label>
+    <input type="text" v-model="id">
+    <label>name:</label>
+    <input type="text" v-model="recipeName">
+    <label>descirption:</label>
+    <input type="text" v-model="recipeDesc">
+    <label>ingredients:</label>
+    <input type="text" v-model="recipeIngr" placeholder="svaki odvojen zarezom">
+    <label>instructions:</label>
+    <input type="text" v-model="recipeInst" placeholder="svaki odvojen zarezom">
+    <label>Image URL:</label>
+    <input type="text" v-model="recipeUrl">
+    <button @click="updateRecipe()">Update</button>
+  </div>
+
   <div class="header">Recipe Site</div>
 
+  <div v-if="selectedRecipe" class="modal-overlay" @click.self="closeRecipe">
+  <div class="modal-card">
+    <h2>{{ selectedRecipe.name }}</h2>
+    <img :src="getImageUrl(selectedRecipe.imageUrl)" alt="">
+    <p><strong>ID:</strong> {{ selectedRecipe.id }}</p>
+    <div class="podjela">
+      <div class="sastojci">
+      <p><strong>Sastojci:</strong></p> <ul><li v-for="ingredient in selectedRecipe.ingredients">{{ ingredient }}</li></ul>
+      </div>
+      <div class="instrukcije">
+      <p><strong>Instrukcije:</strong></p> <ol><li v-for="instruction in selectedRecipe.instructions"> {{ instruction }}</li></ol>
+      </div>
+    </div>
+  </div>
+</div>
+
   <div class="recipes">
-    <div class="recipe" v-for="recipe in recipes">
+    <div v-if="!isLoggedIn">
+      <h2>Log In da vidite recepte</h2>
+    </div>
+    <div class="recipe" v-for="recipe in recipes" @click="showRecipe(recipe)" v-if="isLoggedIn">
       <img :src="getImageUrl(recipe.imageUrl)" alt="">
       <h3>{{ recipe.name }}</h3>
     </div>
@@ -203,7 +285,9 @@ async function addRecipe() {
       text-align: center;
       padding: 20px 10px;
       font-size: 14px;
-      margin-top: 50px;
+      position: absolute;
+      width: 100%;
+      bottom: 0;
     }
 
     @media (max-width: 600px) {
@@ -229,18 +313,104 @@ async function addRecipe() {
         margin: 5px 0;
       }
     }
+  .remove, .add, .update {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  width: 300px;
+  background-color: white;
+  border: 1px solid #ccc;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 10px;
+  padding: 20px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
 
-    .remove {
-      position: absolute;
-      background-color: #F4F3EF;
-      right: 0;
-      padding: 10px;
-    }
+.remove label, .add label, .update label {
+  font-weight: bold;
+  margin-top: 8px;
+}
 
-    .add {
-      position: absolute;
-      background-color: #F4F3EF;
-      right: 0;
-      padding: 10px;
-    }
+.remove input, .add input, .update input {
+  padding: 8px;
+  border-radius: 5px;
+  border: 1px solid #aaa;
+  outline: none;
+  font-size: 14px;
+}
+
+.remove button, .add button, .update button {
+  padding: 10px;
+  background-color: #1B3B2F;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  margin-top: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.remove button:hover, .add button:hover, .update button:hover {
+  background-color: #3e6b57;
+}
+
+  .modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-card {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  height: 90%;
+  width: 60%;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+  text-align: center;
+}
+
+.modal-card img {
+  width: 40%;
+  height: 50%;
+  margin-bottom: 20px;
+  border: #1B3B2F solid 3px;
+  border-radius: 8px;
+}
+
+.podjela {
+  display: grid;
+  grid-template-columns: 50% 50%;
+  justify-items: center;
+}
+
+.sastojci, .instrukcije {
+  width: 90%;
+}
+
+.podjela ul {
+  list-style-type: none;
+  background-color: #eee;
+  border-radius: 12px;
+  width: 100%;
+  padding: 5px 25px;
+}
+
+.podjela ol {
+  background-color: #eee;
+  border-radius: 12px;
+  width: 100%;
+  padding: 5px 25px;
+}
   </style>

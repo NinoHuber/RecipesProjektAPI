@@ -22,86 +22,131 @@ async function login() {
 </script>
 
 <template>
-
   <div class="container">
     <header></header>
 
-    <form @submit.prevent="login">
-    <h2 style="grid-column: span 2;">Login</h2>
-    <label>Email:</label>
-    <input type="email" name="email" required @input="(e) => {email = e.target.value}">
-    <label>Lozinka:</label>
-    <input type="password" name="lozinka" required @input="(e) => {lozinka = e.target.value}">
-    <div class="buttons">
-      <button type="submit">Prijavi se</button>
-      <RouterLink to="/"><button>Nazad</button></RouterLink>
-    </div>
-    <span style="grid-column: span 2;"><p>Nemaš račun? </p><RouterLink to="/signup" class="reg">Registriraj se</RouterLink></span>
-  </form>
+    <form @submit.prevent="login" class="login-form">
+      <h2>Login</h2>
 
-  <footer></footer>
+      <label for="email">Email:</label>
+      <input
+        id="email"
+        type="email"
+        name="email"
+        required
+        @input="(e) => { email = e.target.value }"
+      />
+
+      <label for="lozinka">Lozinka:</label>
+      <input
+        id="lozinka"
+        type="password"
+        name="lozinka"
+        required
+        @input="(e) => { lozinka = e.target.value }"
+      />
+
+      <div class="buttons">
+        <button type="submit">Prijavi se</button>
+        <RouterLink to="/"><button type="button">Nazad</button></RouterLink>
+      </div>
+
+      <div class="register">
+        <p>Nemaš račun? <RouterLink to="/signup" class="reg">Registriraj se</RouterLink></p>
+      </div>
+    </form>
+
+    <footer></footer>
   </div>
   
 </template>
 
 <style scoped>
-  header {
-    background-color: #1B3B2F;
-    height: 100%;
-  }
-  footer {
-    background-color: #1B3B2F;
-    height: 100%;
-  }
-  .container {
-    height: 100vh;
-    width: 100%;
-    display: grid;
-    grid-template-rows: 17% auto 10%;
-  }
-  form {
-    background-color: rgba(3, 27, 7, 0.3);
-    justify-self: center;
-    display: grid;
-    grid-template-columns: 35% 65%;
-    grid-template-rows: auto;
-    text-align: center;
-    border: 2px solid grey;
-    border-radius: 12px;
-    margin: 20px 0px;
-    padding: 15px 40px;
-    justify-items: center;
-    align-items: center;
-    width: 430px;
-  }
-  input {
-    background: none;
-    border: none;
-    border-bottom: 2px solid #1B3B2F;
-  }
-  input:focus {
-    outline: none;
-  }
-  .buttons {
-    grid-column: span 2;
-    display: grid;
-    grid-template-columns: 50% 50%;
-    gap: 10px;
-    width: 100%;
-  }
-  button {
-    padding: 10px 15px;
-    background-color: #275c49;
-    border: 2px solid #1B3B2F;
-    border-radius: 15px;
-    color: white;
-    width: 100%;
-  }
-  button:hover {
-    cursor: pointer;
-    background-color: #0d1d17;
-  }
-  .reg {
-    color: blue;
-  }
+header, footer {
+  background-color: #1B3B2F;
+  height: 100%;
+}
+
+.container {
+  height: 100vh;
+  width: 100%;
+  display: grid;
+  grid-template-rows: 17% auto 10%;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.login-form {
+  background-color: white;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  justify-self: center;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  text-align: left;
+  border-radius: 12px;
+  padding: 30px 40px;
+  width: 380px;
+  margin: 20px 0;
+}
+
+.login-form h2 {
+  text-align: center;
+  color: #1B3B2F;
+  margin-bottom: 10px;
+}
+
+.login-form label {
+  font-weight: bold;
+  color: #1B3B2F;
+}
+
+.login-form input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  outline: none;
+  font-size: 14px;
+}
+
+.login-form input:focus {
+  border-color: #275c49;
+}
+
+.buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+button {
+  padding: 10px;
+  background-color: #275c49;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-weight: bold;
+  width: 100%;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #1B3B2F;
+  cursor: pointer;
+}
+
+.register {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.reg {
+  color: #275c49;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.reg:hover {
+  text-decoration: underline;
+}
+
 </style>
